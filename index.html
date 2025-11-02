@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>宝宝看这里</title>
+<style>
+  :root { --shadow: 0 10px 28px rgba(0,0,0,.16); }
+  html,body{height:100%;margin:0;background:linear-gradient(165deg,#f7f9fc,#f9f7ff);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #stage{position:fixed;inset:0;overflow:hidden}
+  .toast{
+    position:absolute;min-width:240px;max-width:86vw;padding:14px 18px;border-radius:14px;
+    background:var(--bg,#fff);box-shadow:var(--shadow);opacity:0;transform:translate(-50%,-50%) scale(.94);
+    animation:pop-in .55s cubic-bezier(.2,.9,.25,1) forwards;
+    will-change:transform,opacity; pointer-events:none;
+  }
+  .title{font-weight:700;font-size:16px;color:#1d1d1f;display:flex;align-items:center;gap:8px}
+  .msg{margin-top:6px;font-size:20px;line-height:1.45;color:#111;word-break:break-word}
+  .heart{filter:drop-shadow(0 1px 0 rgba(0,0,0,.08))}
+  @keyframes pop-in{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  .hint{
+    position:fixed;left:10px;bottom:10px;font-size:12px;opacity:.35;background:#fff;padding:6px 10px;border-radius:10px;
+    box-shadow:0 6px 12px rgba(0,0,0,.08)
+  }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div class="hint">随机铺满（可点击加速）💗</div>
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const pastel = [
+    ['#fff1f2','#ffe4e6'], ['#ecfeff','#cffafe'], ['#eef2ff','#e9d5ff'],
+    ['#fef9c3','#fde68a'], ['#e0f2fe','#bae6fd'], ['#e6ffe6','#ccffea'],
+    ['#f5f3ff','#e9eafc'], ['#fff7ed','#ffedd5'], ['#e8f7ff','#dbeafe']
+  ];
+  const msgs = [
+    '别太累了宝贝，偶尔偷懒也好 我不想你太辛苦',
+    '愿所有烦恼都消失',
+    '保持好心情宝宝，我一直在',
+    '宝宝，我想你了',
+    '好好吃饭宝宝',
+    '万事胜意，事事顺利',
+    '宝宝，天冷了，多穿衣服',
+    '宝宝，珍惜每一刻',
+    '早点休息宝宝，要好好睡觉',
+    '梦想成真，一切都会好起来的',
+    '每天都要元气满满！',
+    '别熬太晚宝宝，注意身体',
+    '宝宝，记得多喝水',
+    '不要一直盯着屏幕看啦，看看窗外',
+    '一个人出门要注意安全',
+    '每天都要帅帅嘟',
+    '喜欢你宝宝',
+    '爱你',
+    '我好想你',
+    '抱抱宝宝',
+    '有我在宝宝，别怕',
+    '和你聊天真开心',
+    '再忙也要记得吃饭',
+    '一切都会好的宝宝，我一直在',
+    '顺顺利利，每天都有好心情',
+    '累了就休息一下，你是最棒的',
+    '被你喜欢是我的幸运',
+    '想你了宝宝',
+    '宝宝亲亲',
+    '床上等你'
+  ];
+
+  let pool = [];
+  function nextMessage(){
+    if(pool.length===0) pool = msgs.slice().sort(()=>Math.random()-0.5);
+    return pool.pop();
+  }
+  function pick(arr){ return arr[(Math.random()*arr.length)|0]; }
+
+  function spawn(){
+    const el = document.createElement('div');
+    el.className = 'toast';
+    const g = pick(pastel);
+    el.style.setProperty('--bg', `linear-gradient(180deg, ${g[0]}, ${g[1]})`);
+    const vw = innerWidth, vh = innerHeight;
+    const x = 0.10*vw + Math.random()*0.80*vw;
+    const y = 0.12*vh + Math.random()*0.76*vh;
+    el.style.left = x+'px'; el.style.top = y+'px';
+    el.style.zIndex = (100 + stage.children.length).toString();
+    el.innerHTML = '<div class="title"><span class="heart">💖</span><span>提示</span></div>' +
+                   '<div class="msg">'+ nextMessage() +'</div>';
+    stage.appendChild(el);
+  }
+
+  function targetCount(){
+    const area = innerWidth * innerHeight;
+    const N = Math.round(area / 26000 * 1.6);
+    return Math.max(18, Math.min(140, N));
+  }
+
+  let timer, speed = 800;
+  function fillRandom(){
+    const need = targetCount();
+    function step(){
+      const current = stage.children.length;
+      if(current < need){
+        spawn();
+        timer = setTimeout(step, speed + Math.random()*400);
+      }else{
+        clearTimeout(timer);
+      }
+    }
+    step();
+  }
+
+  fillRandom();
+  let fast = false;
+  document.addEventListener('click', ()=>{
+    fast = !fast;
+    speed = fast ? 160 : 800;
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>
